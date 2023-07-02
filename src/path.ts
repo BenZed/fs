@@ -56,10 +56,10 @@ export class Path {
 
     /**
      * Resolve the given segments against the path.
-     * @param segments - The segments to resolve.
+     * @param pathSegments - The segments to resolve.
      * @returns The resolved path.
      */
-    resolve(...segments: string[]) {
-        return resolve(this.path, ...segments)
+    resolve(...pathSegments: string[]) {
+        return resolve(this.path, ...pathSegments)
     }
 }

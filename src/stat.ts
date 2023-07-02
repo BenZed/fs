@@ -40,12 +40,11 @@ export class Stat extends Path {
 
     /**
      * Get the stats of a file or directory.
-     * @param relPath - Optional relative path of the file or directory.
      * @returns The stats of the file or directory
      */
-    async stat(relPath?: string): Promise<Stats> {
-        this.assertAccessible(relPath)
-        const resolvedPath = this.resolve(relPath ?? '')
+    async stat(...relPath: string[]): Promise<Stats> {
+        this.assertAccessible(...relPath)
+        const resolvedPath = this.resolve(...relPath)
 
         const stats = await fs.stat(resolvedPath)
         return stats
@@ -53,12 +52,11 @@ export class Stat extends Path {
 
     /**
      * Check if a file or directory exists.
-     * @param relPath - Optional relative path of the file or directory.
      * @returns True if the file or directory exists, false otherwise.
      */
-    async exists(relPath?: string) {
+    async exists(...relPath: string[]) {
         try {
-            await this.stat(relPath)
+            await this.stat(...relPath)
             return true
         } catch (e) {
             return !(e as Error).message.includes('no such file or directory')
@@ -67,32 +65,26 @@ export class Stat extends Path {
 
     /**
      * Returns true if the configured path is a file.
-     *
-     * @param relPath - Relative path to check
      */
-    async isFile(relPath?: string) {
-        const stat = await this.stat(relPath).catch(() => null)
+    async isFile(...relPath: string[]) {
+        const stat = await this.stat(...relPath).catch(() => null)
         return !!stat?.isFile()
     }
 
     /**
      * Returns true if the configured path is a directory.
-     *
-     * @param relPath - Relative path to check
      */
-    async isDirectory(relPath?: string) {
-        const stat = await this.stat(relPath).catch(() => null)
+    async isDirectory(...relPath: string[]) {
+        const stat = await this.stat(...relPath).catch(() => null)
         return !!stat?.isDirectory()
     }
 
     /**
      * Returns true if the configured path is accessible based on the accessPath.
-     *
-     * @param relPath - The relative path to test accessibility for.
      */
-    isAccessible(relPath?: string) {
+    isAccessible(...relPath: string[]) {
         try {
-            this.assertAccessible(relPath)
+            this.assertAccessible(...relPath)
             return true
         } catch {
             return false
@@ -101,13 +93,11 @@ export class Stat extends Path {
 
     /**
      * Asserts if the configured path is accessible based on the accessPath
-     *
-     * @param relPath - The relative path to test accessibility for.
      */
-    assertAccessible(relPath?: string) {
+    assertAccessible(...relPath: string[]) {
         if (this.accessPath === undefined) return
 
-        const path = this.resolve(relPath ?? '')
+        const path = this.resolve(...relPath)
 
         if (!isRelative(this.accessPath, path))
             throw new Error(`EACCES: permission denied, access '${path}'`)
