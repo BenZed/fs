@@ -1,8 +1,9 @@
-import fs from 'fs/promises'
+import { stat as getStat } from 'fs/promises'
 import { Stats } from 'fs'
 
-import { Path } from './path'
 import { isRelative } from './util'
+
+import { Path } from './path'
 
 /**
  * Expanding on Path, the stat class provides information about
@@ -49,7 +50,7 @@ export class Stat extends Path {
         this.assertInAccessPath(...relPath)
         const resolvedPath = this.resolve(...relPath)
 
-        const stats = await fs.stat(resolvedPath)
+        const stats = await getStat(resolvedPath)
         return stats
     }
 

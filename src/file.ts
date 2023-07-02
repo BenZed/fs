@@ -1,21 +1,14 @@
-import { Stat } from './stat'
-
 import * as path from 'path'
 
-import {
-    writeFile,
-    readFile,
-    mkdir as makeDir,
-    rm as removeFileOrDir
-} from 'fs/promises'
+import { writeFile, readFile, mkdir as makeDir } from 'fs/promises'
+import { Nav } from './nav'
 
 //// Main ////
 
 /**
- * Expanding on stat, the File class has properties and methods
- * for interacting with files on the file system.
+ * Properties and methods for interacting with files on the file system.
  */
-class File extends Stat {
+class File extends Nav {
     override get name() {
         return path.basename(this.path, this.ext)
     }
@@ -45,17 +38,10 @@ class File extends Stat {
         await writeLines(this, [], true)
     }
 
-    async remove() {
-        this.assertInAccessPath()
-
-        const targetExists = await this.exists()
-        if (!targetExists) {
-            return false
-        }
-
-        await removeFileOrDir(this.path)
-
-        return true
+    override async remove() {
+        // overridden to remove relative file removals from this api
+        const removed = await super.remove()
+        return removed
     }
 }
 

@@ -94,6 +94,19 @@ describe(write.name, () => {
     })
 })
 
+const { erase } = File.prototype
+describe(erase.name, () => {
+    test("alias to write('')", async () => {
+        const contentBeforeErase = await joke.read()
+        expect(contentBeforeErase).not.toHaveLength(0)
+
+        await joke.erase()
+
+        const contentAfterErase = await joke.read()
+        expect(contentAfterErase).toHaveLength(0)
+    })
+})
+
 const { append } = File.prototype
 describe(append.name, () => {
     test(`append file content`, async () => {
