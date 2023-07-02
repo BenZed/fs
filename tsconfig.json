@@ -1,15 +1,23 @@
 {
+
+    "include": ["src"],
+    "exclude": [
+        "src/**/*.test.ts"
+    ],
+
     "compilerOptions": {
 
         "lib": [
-            "ESNext",
+            "ES2022",
         ],
+
+        "outDir": "./lib",
 
         // Build Options
         "build": true,
-        "target": "ESNext",
+        "target": "ES5",
+        "module": "CommonJS",
         "declaration": true,
-        "module": "ESNext",
 
         // @internal access modifier
         "stripInternal": true,
