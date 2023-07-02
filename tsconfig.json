@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+
+        "lib": [
+            "ESNext",
+        ],
+
+        // Build Options
+        "build": true,
+        "target": "ESNext",
+        "declaration": true,
+        "module": "ESNext",
+
+        // @internal access modifier
+        "stripInternal": true,
+
+        // Search under node_modules for non-relative imports.
+        "moduleResolution": "node",
+
+        "strict": true,
+        "noImplicitOverride": true, // Thought this was default in strict mode
+
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+
+        "esModuleInterop": true
+    }
+}
