@@ -1,4 +1,4 @@
-import { isAbsolute, resolve, basename, relative } from 'path'
+import { isAbsolute, resolve, basename } from 'path'
 import { isRelative } from './util'
 
 /**

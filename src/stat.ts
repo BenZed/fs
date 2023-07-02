@@ -9,6 +9,9 @@ import { isRelative } from './util'
  * the file or directory and options for access restriction.
  */
 export class Stat extends Path {
+    /**
+     * path this instance has file-system access to
+     */
     readonly accessPath?: string
 
     constructor(
@@ -23,7 +26,7 @@ export class Stat extends Path {
         path: string,
 
         /**
-         * The specific path to restrict access to.
+         * Specific path to restrict file system access to.
          */
         accessPath?: string
     )
@@ -42,8 +45,8 @@ export class Stat extends Path {
      * Get the stats of a file or directory.
      * @returns The stats of the file or directory
      */
-    async stat(...relPath: string[]): Promise<Stats> {
-        this.assertAccessible(...relPath)
+    async stats(...relPath: string[]): Promise<Stats> {
+        this.assertInAccessPath(...relPath)
         const resolvedPath = this.resolve(...relPath)
 
         const stats = await fs.stat(resolvedPath)
@@ -56,7 +59,7 @@ export class Stat extends Path {
      */
     async exists(...relPath: string[]) {
         try {
-            await this.stat(...relPath)
+            await this.stats(...relPath)
             return true
         } catch (e) {
             return !(e as Error).message.includes('no such file or directory')
@@ -64,27 +67,11 @@ export class Stat extends Path {
     }
 
     /**
-     * Returns true if the configured path is a file.
-     */
-    async isFile(...relPath: string[]) {
-        const stat = await this.stat(...relPath).catch(() => null)
-        return !!stat?.isFile()
-    }
-
-    /**
-     * Returns true if the configured path is a directory.
-     */
-    async isDirectory(...relPath: string[]) {
-        const stat = await this.stat(...relPath).catch(() => null)
-        return !!stat?.isDirectory()
-    }
-
-    /**
      * Returns true if the configured path is accessible based on the accessPath.
      */
-    isAccessible(...relPath: string[]) {
+    isInAccessPath(...relPath: string[]) {
         try {
-            this.assertAccessible(...relPath)
+            this.assertInAccessPath(...relPath)
             return true
         } catch {
             return false
@@ -94,7 +81,7 @@ export class Stat extends Path {
     /**
      * Asserts if the configured path is accessible based on the accessPath
      */
-    assertAccessible(...relPath: string[]) {
+    assertInAccessPath(...relPath: string[]) {
         if (this.accessPath === undefined) return
 
         const path = this.resolve(...relPath)
