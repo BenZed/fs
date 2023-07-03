@@ -1,4 +1,4 @@
-import { extname, resolve } from 'path'
+import { extname } from 'path'
 import { Dir } from './dir'
 import { File } from './file'
 
@@ -8,14 +8,14 @@ import { File } from './file'
  * Create a {@link Dir} cursor to a location on the file system.
  */
 function dir(path: string, restrict = false) {
-    return new Dir(resolve(...path), restrict)
+    return new Dir(path, restrict)
 }
 
 /**
  * Create a {@link File} cursor to a location on the file system.
  */
 function file(path: string, restrict = false) {
-    return new File(resolve(...path), restrict)
+    return new File(path, restrict)
 }
 
 //// Contextual Convenience Method ////

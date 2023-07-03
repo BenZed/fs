@@ -2,7 +2,7 @@
     "name": "@benzed/fs",
     "description": "Convenience utilities for interacting with the file system.",
     "main": "./lib",
-    "version": "4.0.2",
+    "version": "4.0.4",
     "scripts": {
         "update": "npx npm-check -u",
         "test": "jest --run-in-band --all",
@@ -10,7 +10,7 @@
         "tsc": "shx rm -rf lib && tsc",
         "lint": "eslint src/**/*.ts --fix",
         "build": "npm run test && npm run lint && npm run tsc",
-        "prepublish": "npm run build"
+        "prepublishOnly": "npm run build"
     },
     "repository": {
         "type": "git",
