@@ -2,7 +2,7 @@
     "name": "@benzed/fs",
     "description": "Convenience utilities for interacting with the file system.",
     "main": "./lib",
-    "version": "4.0.4",
+    "version": "4.0.5",
     "scripts": {
         "update": "npx npm-check -u",
         "test": "jest --run-in-band --all",
