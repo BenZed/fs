@@ -2,6 +2,7 @@
     "name": "@benzed/fs",
     "description": "Convenience utilities for interacting with the file system.",
     "main": "./lib",
+    "version": "4.0.0",
     "scripts": {
         "update": "npx npm-check -u",
         "test": "jest --run-in-band --all",
@@ -14,7 +15,6 @@
         "type": "git",
         "url": "git+https://github.com/BenZed/fs.git"
     },
-    "private": true,
     "author": "BenZed",
     "bugs": {
         "url": "https://github.com/BenZed/fs/issues"
