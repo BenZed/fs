@@ -20,6 +20,7 @@
 
         // Search under node_modules for non-relative imports.
         "moduleResolution": "node",
+        "resolveJsonModule": true,
 
         "strict": true,
         "noImplicitOverride": true, // Thought this was default in strict mode

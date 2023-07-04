@@ -1,4 +1,4 @@
-import { isAbsolute, resolve, basename } from 'path'
+import { isAbsolute, relative, resolve, basename } from 'path'
 import { isRelative } from './util'
 
 /**
@@ -26,13 +26,26 @@ export class Path {
         return basename(this.path)
     }
 
+    relative(...pathSegments: string[]) {
+        return relative(this.path, resolve(...pathSegments))
+    }
+
     /**
      * Check if the given path is relative to the current path.
      * @param targetPath - The path to check.
      * @returns True if the path is relative, false otherwise.
      */
-    isRelative(targetPath: string): boolean {
-        return isRelative(this.path, targetPath)
+    isRelative(...pathSegments: string[]): boolean {
+        return isRelative(this.path, resolve(...pathSegments))
+    }
+
+    /**
+     * Resolve the given segments against the path.
+     * @param pathSegments - The segments to resolve.
+     * @returns The resolved path.
+     */
+    resolve(...pathSegments: string[]) {
+        return resolve(this.path, ...pathSegments)
     }
 
     //// Builtins ////
@@ -52,14 +65,5 @@ export class Path {
         return {
             path
         }
-    }
-
-    /**
-     * Resolve the given segments against the path.
-     * @param pathSegments - The segments to resolve.
-     * @returns The resolved path.
-     */
-    resolve(...pathSegments: string[]) {
-        return resolve(this.path, ...pathSegments)
     }
 }

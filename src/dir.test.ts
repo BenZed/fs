@@ -10,6 +10,7 @@ import {
 import * as TEST_DIR from './test-dir.util.test'
 
 import { Dir } from './dir'
+import { File } from './file'
 
 //// Setup ////
 
@@ -69,7 +70,7 @@ describe(read.name, () => {
 const { files } = Dir.prototype
 describe(files.name, () => {
     test(`get a list of contained files`, async () => {
-        const files = await testDir.files()
+        const files: File[] = await testDir.files()
         expect(files).toEqual([
             testDir.file('joke.txt'),
             testDir.file('riddle.txt')
@@ -92,7 +93,7 @@ describe(files.name, () => {
 const { dirs } = Dir.prototype
 describe(dirs.name, () => {
     test(`get a list of contained files`, async () => {
-        const dirs = await testDir.dirs()
+        const dirs: Dir[] = await testDir.dirs()
         expect(dirs).toEqual([
             // only 1
             testDir.file('poems')

@@ -6,6 +6,8 @@ import { File } from './file'
 //// Types ////
 
 type ReadOptions = { recursive: boolean } | { depth: number }
+// type FileFilter = (file: File) => boolean
+// type DirFilter = (dir: Dir) => boolean
 
 //// Class ////
 
@@ -30,7 +32,7 @@ export class Dir extends Nav {
      */
     async files(options?: ReadOptions) {
         const contents = await this.read(options)
-        return contents.filter(content => content.isFile())
+        return contents.filter((content): content is File => content.isFile())
     }
 
     /**
@@ -38,7 +40,7 @@ export class Dir extends Nav {
      */
     async dirs(options?: ReadOptions) {
         const contents = await this.read(options)
-        return contents.filter(content => content.isDir())
+        return contents.filter((content): content is Dir => content.isDir())
     }
 
     /**
