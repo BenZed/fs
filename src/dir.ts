@@ -1,13 +1,31 @@
 import fs from 'fs/promises'
+import { Stats } from 'fs'
 
 import { Nav } from './nav'
 import { File } from './file'
+import { PathSegments } from './path'
 
 //// Types ////
 
-type ReadOptions = { recursive: boolean } | { depth: number }
-// type FileFilter = (file: File) => boolean
-// type DirFilter = (dir: Dir) => boolean
+type DepthOptions = { recursive?: boolean } | { depth?: number }
+
+type ReadFilter = (input: File | Dir, stats: Stats) => boolean
+
+type ReadGuard<T extends Dir | File> = (
+    input: Dir | File,
+    stats: Stats
+) => input is T
+
+type ReadOptions =
+    | DepthOptions
+    | ReadFilter
+    | (DepthOptions & { filter?: ReadFilter })
+
+type ReadOptionsOutput<T extends ReadOptions> = T extends ReadGuard<infer Tx>
+    ? Tx
+    : T extends { filter: ReadGuard<infer Tx> }
+    ? Tx
+    : Dir | File
 
 //// Class ////
 
@@ -16,7 +34,26 @@ type ReadOptions = { recursive: boolean } | { depth: number }
  */
 export class Dir extends Nav {
     /**
-     * Get a list of {@link File} or {@link Dir}
+     * Create a new {@link Dir} from a given path input
+     */
+    static from(...pathInput: PathSegments): Dir {
+        return new Dir(Nav.resolve(...pathInput))
+    }
+
+    /**
+     * Get a list of contained {@link File} or {@link Dir}
+     */
+    async read<T extends ReadOptions>(
+        options: T
+    ): Promise<ReadOptionsOutput<T>[]>
+
+    /**
+     * Get a list of contained {@link File} or {@link Dir}
+     */
+    async read(options?: ReadOptions): Promise<(File | Dir)[]>
+
+    /**
+     * Get a list of contained {@link File} or {@link Dir}
      */
     async read(options?: ReadOptions) {
         const children: (File | Dir)[] = []
@@ -30,22 +67,39 @@ export class Dir extends Nav {
     /**
      * Get a list of contained {@link File}
      */
-    async files(options?: ReadOptions) {
-        const contents = await this.read(options)
-        return contents.filter((content): content is File => content.isFile())
+    async files(options?: DepthOptions): Promise<File[]> {
+        const items = await this.read({
+            ...options,
+            filter(item): item is File {
+                return item.isFile()
+            }
+        })
+        return items
     }
 
     /**
      * Get a list of contained {@link Dir}
      */
-    async dirs(options?: ReadOptions) {
-        const contents = await this.read(options)
-        return contents.filter((content): content is Dir => content.isDir())
+    async dirs(options?: DepthOptions) {
+        const items = await this.read({
+            ...options,
+            filter(item): item is Dir {
+                return item.isDir()
+            }
+        })
+        return items
     }
 
     /**
      * Iterate through each {@link File} or {@link Dir} contained within.
      */
+    each<T extends ReadOptions>(options: T): AsyncIterable<ReadOptionsOutput<T>>
+
+    /**
+     * Iterate through each {@link File} or {@link Dir} contained within.
+     */
+    each(options?: ReadOptions): AsyncIterable<File | Dir>
+
     async *each(
         options: ReadOptions = { depth: 1 }
     ): AsyncIterable<File | Dir> {
@@ -55,7 +109,16 @@ export class Dir extends Nav {
                 ? options.recursive
                     ? Infinity
                     : 1
-                : options.depth
+                : 'depth' in options && options.depth !== undefined
+                ? options.depth
+                : 1
+
+        const filter =
+            typeof options === 'function'
+                ? options
+                : 'filter' in options && !!options.filter
+                ? options.filter
+                : () => true
 
         if (
             depth <= 0 ||
@@ -72,9 +135,12 @@ export class Dir extends Nav {
 
             const child = stat.isFile() ? this.file(name) : this.dir(name)
 
-            yield child
+            if (filter(child, stat)) {
+                yield child
+            }
+
             if (child.isDir() && depth > 1) {
-                yield* child.each({ depth: depth - 1 })
+                yield* child.each({ depth: depth - 1, filter })
             }
         }
     }

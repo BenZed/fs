@@ -159,3 +159,16 @@ describe(remove.name, () => {
         )
     })
 })
+
+// const { move } = Nav.prototype
+// describe(move.name, () => {
+//     test(`move file`, async () => {
+//         await testDir.file('riddle.txt').move('riddle-over-here.txt')
+//         await expect(TEST_DIR.fileExists('riddle.txt')).resolves.toBe(false)
+
+//         await expect(TEST_DIR.fileExists('riddle-over-here.txt')).resolves.toBe(
+//             true
+//         )
+//     })
+
+// })

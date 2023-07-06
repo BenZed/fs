@@ -55,6 +55,26 @@ describe(read.name, () => {
             jokeNoAccess.write('I have erased this joke!')
         ).rejects.toThrow('permission denied')
     })
+
+    test('optional transform argument', async () => {
+        const lines = await joke.read(c => c.split('\n'))
+        expect(lines).toEqual(await joke.read().then(c => c.split('\n')))
+    })
+})
+
+const { readLines } = File.prototype
+describe(readLines.name, () => {
+    test('gets content from a file as lines', async () => {
+        await expect(joke.readLines()).resolves.toEqual(
+            await TEST_DIR.readFile('joke.txt').then(c => c.split('\n'))
+        )
+    })
+
+    test('optional delimiter argument', async () => {
+        await expect(joke.readLines('prefer')).resolves.toEqual(
+            await TEST_DIR.readFile('joke.txt').then(c => c.split('prefer'))
+        )
+    })
 })
 
 const { write } = File.prototype
@@ -85,6 +105,14 @@ describe(write.name, () => {
         ]
         await story.write(...storyLines)
         expect(await story.read()).toContain(storyLines.join('\n'))
+    })
+
+    test(`can take a file as input`, async () => {
+        const jokeCopy = joke.file('../joke-copy.txt')
+
+        await jokeCopy.write(joke)
+
+        expect(await jokeCopy.read()).toEqual(await joke.read())
     })
 
     test(`respects ${'accessPath' satisfies keyof File} property`, async () => {
@@ -165,4 +193,8 @@ describe(remove.name, () => {
     test(`respects ${'accessPath' satisfies keyof File} property`, async () => {
         await expect(jokeNoAccess.remove()).rejects.toThrow('permission denied')
     })
+})
+
+test(`${File.name}.${File.from.name}`, () => {
+    expect(File.from('a', 'b', 'c.txt')).toEqual(new File('a/b/c.txt'))
 })

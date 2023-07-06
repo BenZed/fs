@@ -2,6 +2,13 @@ import * as path from 'path'
 
 import { writeFile, readFile, mkdir as makeDir } from 'fs/promises'
 import { Nav } from './nav'
+import { PathSegments } from './path'
+
+//// Types ////
+
+type WriteInput = string[] | [File]
+
+type ReadTransform = (content: string) => unknown
 
 //// Main ////
 
@@ -9,6 +16,13 @@ import { Nav } from './nav'
  * Properties and methods for interacting with files on the file system.
  */
 class File extends Nav {
+    /**
+     * Create a new {@link File} from a given path input
+     */
+    static from(...pathInput: PathSegments): File {
+        return new File(Nav.resolve(...pathInput))
+    }
+
     override get name() {
         return path.basename(this.path, this.ext)
     }
@@ -19,23 +33,43 @@ class File extends Nav {
 
     //// Read Interface ////
 
-    async read() {
+    /**
+     * Read the contents of a file
+     */
+    async read(): Promise<string>
+
+    /**
+     * Apply a transform method to the contents of a file
+     */
+    async read<T extends ReadTransform>(transform: T): Promise<ReturnType<T>>
+    async read(transform?: ReadTransform): Promise<unknown> {
         this.assertInAccessPath()
 
         const content = await readFile(this.path, 'utf-8')
-        return content
+        return transform ? transform(content) : content
     }
 
-    async write(...lines: string[]) {
-        await writeLines(this, lines, true)
+    /**
+     * Read the contents of a file, split into lines
+     **/
+    async readLines(delimiter = '\n') {
+        return this.read(c => c.split(delimiter))
     }
 
-    async append(...lines: string[]) {
-        await writeLines(this, lines, false)
+    // TODO: * eachLine(), * stream()
+
+    //// Write Interface ////
+
+    async write(...input: WriteInput) {
+        await writeToFile(this, input, true)
+    }
+
+    async append(...input: WriteInput) {
+        await writeToFile(this, input, false)
     }
 
     async erase() {
-        await writeLines(this, [], true)
+        await writeToFile(this, [], true)
     }
 
     override async remove() {
@@ -47,18 +81,28 @@ class File extends Nav {
 
 //// Helper ////
 
-async function writeLines(
+function isFileInput(input: WriteInput): input is [File] {
+    return input[0] instanceof File
+}
+
+// TODO: encoding / streams
+async function writeToFile(
     file: File,
-    lines: string[],
+    input: WriteInput,
     eraseExistingContent: boolean
 ) {
     file.assertInAccessPath()
 
+    // Ensure path exists
     if (!(await file.exists())) {
         await makeDir(path.dirname(file.path), { recursive: true })
     }
 
-    await writeFile(file.path, lines.join('\n'), {
+    const content = isFileInput(input)
+        ? await input[0].read()
+        : input.join('\n')
+
+    await writeFile(file.path, content, {
         flag: eraseExistingContent ? 'w' : 'a'
     })
 }

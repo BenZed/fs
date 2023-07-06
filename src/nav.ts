@@ -5,11 +5,17 @@ import { Stat } from './stat'
 import type { File } from './file'
 import type { Dir } from './dir'
 import { isRelative } from './util'
+import { PathSegments } from './path'
 
 //// EsLint ////
 /* eslint-disable 
     @typescript-eslint/no-var-requires,
 */
+
+//// TODO ////
+// Nav, Dir, File should all have the same implementation at
+// runtime. The delineation between the available interfaces
+// should be done with type-rubric.
 
 /**
  * Interface elements that are in both File and Dir
@@ -18,9 +24,9 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative File
      */
-    file(...relPath: string[]) {
+    file(...pathInput: PathSegments) {
         const { File } = require('./file') as typeof import('./file')
-        return new File(this.resolve(...relPath), this.accessPath)
+        return new File(this.resolve(...pathInput), this.accessPath)
     }
 
     isFile(): this is File {
@@ -35,9 +41,9 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative Dir
      */
-    dir(...relPath: string[]) {
+    dir(...pathInput: PathSegments) {
         const { Dir } = require('./dir') as typeof import('./dir')
-        return new Dir(this.resolve(...relPath), this.accessPath)
+        return new Dir(this.resolve(...pathInput), this.accessPath)
     }
 
     isDir(): this is Dir {
@@ -51,7 +57,7 @@ export class Nav extends Stat {
         return this.dir('../')
     }
 
-    *eachParent() {
+    *eachParent(): Iterable<Dir> {
         let { parent: dir } = this
 
         while (dir.parent.path !== dir.path) {
@@ -66,19 +72,29 @@ export class Nav extends Stat {
         }
     }
 
+    // TODO figure me out
+    // async move(...pathInput: PathInput) {
+    //     this.assertInAccessPath(...pathInput)
+    //     const targetPath = Nav.isAbsolute(Nav.resolve(...pathInput))
+    //         ? Nav.resolve(...pathInput)
+    //         : this.resolve(...pathInput)
+    //     console.log({ targetPath })
+    //     await rename(this.path, targetPath)
+    // }
+
     /**
      * Removes a file or directory.
      */
-    async remove(...relPath: string[]) {
+    async remove(...pathInput: PathSegments) {
         // TODO this method really doesn't fit here.
-        this.assertInAccessPath(...relPath)
+        this.assertInAccessPath(...pathInput)
 
-        const targetExists = await this.exists(...relPath)
+        const targetExists = await this.exists(...pathInput)
         if (!targetExists) {
             return false
         }
 
-        const targetPath = this.resolve(...relPath)
+        const targetPath = this.resolve(...pathInput)
         await removeFileOrDir(targetPath, { recursive: true })
 
         return true
