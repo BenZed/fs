@@ -1,11 +1,47 @@
-import { isAbsolute, resolve, basename } from 'path'
+import { isAbsolute, relative, resolve, basename } from 'path'
 import { isRelative } from './util'
+
+//// Types ////
+
+export type PathJson = { readonly path: string }
+
+// export type AbsolutePath = `/${string}`
+
+export type PathSegments = string[]
+
+export type PathInput = PathSegments | [PathJson]
+
+export type PathResolveInput = (PathSegments[number] | PathJson)[]
+
+//// Path ////
 
 /**
  * base class for a file system cursor consisting only of the path state
  * and related method
  */
-export class Path {
+export class Path implements PathJson {
+    static isAbsolute(...pathInput: PathResolveInput) {
+        const segments = this._toSegments(...pathInput)
+        return segments.some(isAbsolute)
+    }
+
+    static isRelative(from: string | PathJson, to: string | PathJson) {
+        const [fromStr, toStr] = this._toSegments(from, to)
+
+        return isRelative(fromStr, toStr)
+    }
+
+    static resolve(...pathInput: PathResolveInput) {
+        return resolve(...this._toSegments(...pathInput))
+    }
+
+    private static _toSegments(...pathInput: PathResolveInput) {
+        const segments: PathSegments = pathInput.map(seg =>
+            typeof seg === 'string' ? seg : seg.path
+        )
+        return segments
+    }
+
     //// Construct ////
 
     readonly path: string
@@ -27,12 +63,24 @@ export class Path {
     }
 
     /**
-     * Check if the given path is relative to the current path.
-     * @param targetPath - The path to check.
-     * @returns True if the path is relative, false otherwise.
+     * Resolve a path relative to this location from the input
      */
-    isRelative(targetPath: string): boolean {
-        return isRelative(this.path, targetPath)
+    relative(...pathInput: PathInput) {
+        return relative(this.path, Path.resolve(...pathInput))
+    }
+
+    /**
+     * Check if the given path is relative to the current path.
+     */
+    isRelative(...pathInput: PathInput): boolean {
+        return isRelative(this.path, Path.resolve(...pathInput))
+    }
+
+    /**
+     * Resolve the given segments against the path.
+     */
+    resolve(...pathInput: PathSegments) {
+        return Path.resolve(this.path, ...pathInput)
     }
 
     //// Builtins ////
@@ -47,19 +95,10 @@ export class Path {
     /**
      * Get the JSON representation of the path.
      */
-    toJSON() {
+    toJSON(): PathJson {
         const { path } = this
         return {
             path
         }
-    }
-
-    /**
-     * Resolve the given segments against the path.
-     * @param pathSegments - The segments to resolve.
-     * @returns The resolved path.
-     */
-    resolve(...pathSegments: string[]) {
-        return resolve(this.path, ...pathSegments)
     }
 }

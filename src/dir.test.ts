@@ -10,6 +10,7 @@ import {
 import * as TEST_DIR from './test-dir.util.test'
 
 import { Dir } from './dir'
+import { File } from './file'
 
 //// Setup ////
 
@@ -35,7 +36,6 @@ describe('construct', () => {
 
     test('restrict specific path path', () => {
         const poemsDir = new Dir(TEST_DIR.path, TEST_DIR.resolve('poems'))
-
         expect(poemsDir.accessPath).toEqual(TEST_DIR.resolve('poems'))
     })
 })
@@ -69,7 +69,7 @@ describe(read.name, () => {
 const { files } = Dir.prototype
 describe(files.name, () => {
     test(`get a list of contained files`, async () => {
-        const files = await testDir.files()
+        const files: File[] = await testDir.files()
         expect(files).toEqual([
             testDir.file('joke.txt'),
             testDir.file('riddle.txt')
@@ -92,7 +92,7 @@ describe(files.name, () => {
 const { dirs } = Dir.prototype
 describe(dirs.name, () => {
     test(`get a list of contained files`, async () => {
-        const dirs = await testDir.dirs()
+        const dirs: Dir[] = await testDir.dirs()
         expect(dirs).toEqual([
             // only 1
             testDir.file('poems')
@@ -111,7 +111,7 @@ describe(dirs.name, () => {
     test(`options.recursive false`, async () => {
         const dirs = await testDir.dirs({ recursive: false })
         expect(dirs).toEqual([
-            // only 2
+            // only 1
             testDir.file('poems')
         ])
     })
@@ -138,6 +138,22 @@ describe(each.name, () => {
         expect.assertions(1)
     })
 
+    test('optional filter argument', async () => {
+        for await (const file of testDir.each((f): f is File => f.isFile())) {
+            expect(file.isFile()).toBe(true)
+            file satisfies File
+        }
+    })
+
+    test('optional options.filter argument', async () => {
+        for await (const dir of testDir.each({
+            filter: (f): f is Dir => f.isDir()
+        })) {
+            expect(dir.isDir()).toBe(true)
+            dir satisfies Dir
+        }
+    })
+
     test(`respects ${'accessPath' satisfies keyof Dir} property`, async () => {
         const forbiddenDir = jailDir.dir('../')
         try {
@@ -150,4 +166,8 @@ describe(each.name, () => {
         }
         expect.assertions(1)
     })
+})
+
+test(`${Dir.name}.${Dir.from.name}`, () => {
+    expect(Dir.from('a', 'b', 'c')).toEqual(new Dir('a/b/c'))
 })

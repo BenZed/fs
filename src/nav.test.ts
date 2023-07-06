@@ -74,6 +74,41 @@ describe(dir.name, () => {
     })
 })
 
+const { isDir } = Nav.prototype
+test(isDir.name, () => {
+    expect(jailDir.isDir()).toBe(true)
+    expect(testFile.isFile()).toBe(false)
+})
+
+const { file } = Nav.prototype
+describe(file.name, () => {
+    test(`nav to file`, () => {
+        expect(testFile.dir('../poems').path).toEqual(TEST_DIR.resolve('poems'))
+    })
+    test(`immutable`, () => {
+        expect(testFile.file('../riddle.txt')).not.toBe(testFile)
+    })
+
+    test(
+        `.${'parent' satisfies keyof Nav} as an alias ` +
+            `to ${file.name}("../")`,
+        () => {
+            expect(testDir).toEqual(testDir.file('child').parent)
+        }
+    )
+
+    test(`respects ${'accessPath' satisfies keyof Nav} property`, async () => {
+        const subFile = jailDir.file('cake.txt')
+        expect(subFile.accessPath).toEqual(jailDir.accessPath)
+    })
+})
+
+const { isFile } = Nav.prototype
+test(isFile.name, () => {
+    expect(testDir.isFile()).toBe(false)
+    expect(testDir.file('text.js').isFile()).toBe(true)
+})
+
 const { eachParent } = Nav.prototype
 describe(eachParent.name, () => {
     test('iterates each parent', () => {
@@ -124,3 +159,16 @@ describe(remove.name, () => {
         )
     })
 })
+
+// const { move } = Nav.prototype
+// describe(move.name, () => {
+//     test(`move file`, async () => {
+//         await testDir.file('riddle.txt').move('riddle-over-here.txt')
+//         await expect(TEST_DIR.fileExists('riddle.txt')).resolves.toBe(false)
+
+//         await expect(TEST_DIR.fileExists('riddle-over-here.txt')).resolves.toBe(
+//             true
+//         )
+//     })
+
+// })

@@ -3,7 +3,7 @@ import { Stats } from 'fs'
 
 import { isRelative } from './util'
 
-import { Path } from './path'
+import { Path, PathInput, PathSegments } from './path'
 
 /**
  * Expanding on Path, the stat class provides information about
@@ -46,9 +46,9 @@ export class Stat extends Path {
      * Get the stats of a file or directory.
      * @returns The stats of the file or directory
      */
-    async stats(...relPath: string[]): Promise<Stats> {
-        this.assertInAccessPath(...relPath)
-        const resolvedPath = this.resolve(...relPath)
+    async stats(...pathInput: PathSegments): Promise<Stats> {
+        this.assertInAccessPath(...pathInput)
+        const resolvedPath = this.resolve(...pathInput)
 
         const stats = await getStat(resolvedPath)
         return stats
@@ -58,9 +58,9 @@ export class Stat extends Path {
      * Check if a file or directory exists.
      * @returns True if the file or directory exists, false otherwise.
      */
-    async exists(...relPath: string[]) {
+    async exists(...pathInput: PathSegments) {
         try {
-            await this.stats(...relPath)
+            await this.stats(...pathInput)
             return true
         } catch (e) {
             return !(e as Error).message.includes('no such file or directory')
@@ -70,9 +70,9 @@ export class Stat extends Path {
     /**
      * Returns true if the configured path is accessible based on the accessPath.
      */
-    isInAccessPath(...relPath: string[]) {
+    isInAccessPath(...pathInput: PathInput) {
         try {
-            this.assertInAccessPath(...relPath)
+            this.assertInAccessPath(...pathInput)
             return true
         } catch {
             return false
@@ -82,10 +82,12 @@ export class Stat extends Path {
     /**
      * Asserts if the configured path is accessible based on the accessPath
      */
-    assertInAccessPath(...relPath: string[]) {
+    assertInAccessPath(...pathInput: PathInput) {
         if (this.accessPath === undefined) return
 
-        const path = this.resolve(...relPath)
+        const path = Path.isAbsolute(...pathInput)
+            ? Path.resolve(...pathInput)
+            : Path.resolve(this.path, ...pathInput)
 
         if (!isRelative(this.accessPath, path))
             throw new Error(`EACCES: permission denied, access '${path}'`)

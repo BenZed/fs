@@ -1,22 +1,6 @@
-import { extname, resolve } from 'path'
+import { extname } from 'path'
 import { Dir } from './dir'
 import { File } from './file'
-
-//// Convenience Methods ////
-
-/**
- * Create a {@link Dir} cursor to a location on the file system.
- */
-function dir(path: string, restrict = false) {
-    return new Dir(resolve(...path), restrict)
-}
-
-/**
- * Create a {@link File} cursor to a location on the file system.
- */
-function file(path: string, restrict = false) {
-    return new File(resolve(...path), restrict)
-}
 
 //// Contextual Convenience Method ////
 
@@ -39,14 +23,26 @@ fs.dir = dir
 
 fs.file = file
 
+//// Convenience Methods ////
+
+/**
+ * Create a {@link Dir} cursor to a location on the file system.
+ */
+function dir(path: string, restrict = false) {
+    return new Dir(path, restrict)
+}
+
+/**
+ * Create a {@link File} cursor to a location on the file system.
+ */
+function file(path: string, restrict = false) {
+    return new File(path, restrict)
+}
+
 //// Exports ////
 
 export default fs
 
-export { dir, file }
-
 export * from './dir'
 
 export * from './file'
-
-export * from './util'

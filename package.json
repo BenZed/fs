@@ -2,7 +2,7 @@
     "name": "@benzed/fs",
     "description": "Convenience utilities for interacting with the file system.",
     "main": "./lib",
-    "version": "4.0.2",
+    "version": "5.0.0",
     "scripts": {
         "update": "npx npm-check -u",
         "test": "jest --run-in-band --all",
@@ -10,7 +10,7 @@
         "tsc": "shx rm -rf lib && tsc",
         "lint": "eslint src/**/*.ts --fix",
         "build": "npm run test && npm run lint && npm run tsc",
-        "prepublish": "npm run build"
+        "prepublishOnly": "npm run build"
     },
     "repository": {
         "type": "git",
@@ -22,6 +22,7 @@
     },
     "homepage": "https://github.com/BenZed/fs#readme",
     "devDependencies": {
+        "@benzed/dev": "^0.13.4",
         "@types/jest": "^29.2.0",
         "@typescript-eslint/eslint-plugin": "^5.40.1",
         "@typescript-eslint/parser": "^5.40.1",
