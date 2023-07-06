@@ -3,7 +3,7 @@ import { Stats } from 'fs'
 
 import { isRelative } from './util'
 
-import { Path, PathInput } from './path'
+import { Path, PathSegments } from './path'
 
 /**
  * Expanding on Path, the stat class provides information about
@@ -46,7 +46,7 @@ export class Stat extends Path {
      * Get the stats of a file or directory.
      * @returns The stats of the file or directory
      */
-    async stats(...pathInput: PathInput): Promise<Stats> {
+    async stats(...pathInput: PathSegments): Promise<Stats> {
         this.assertInAccessPath(...pathInput)
         const resolvedPath = this.resolve(...pathInput)
 
@@ -58,7 +58,7 @@ export class Stat extends Path {
      * Check if a file or directory exists.
      * @returns True if the file or directory exists, false otherwise.
      */
-    async exists(...pathInput: PathInput) {
+    async exists(...pathInput: PathSegments) {
         try {
             await this.stats(...pathInput)
             return true
@@ -70,7 +70,7 @@ export class Stat extends Path {
     /**
      * Returns true if the configured path is accessible based on the accessPath.
      */
-    isInAccessPath(...pathInput: PathInput) {
+    isInAccessPath(...pathInput: PathSegments) {
         try {
             this.assertInAccessPath(...pathInput)
             return true
@@ -82,7 +82,7 @@ export class Stat extends Path {
     /**
      * Asserts if the configured path is accessible based on the accessPath
      */
-    assertInAccessPath(...pathInput: PathInput) {
+    assertInAccessPath(...pathInput: PathSegments) {
         if (this.accessPath === undefined) return
 
         const path = this.resolve(...pathInput)

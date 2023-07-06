@@ -5,7 +5,11 @@ import { isRelative } from './util'
 
 export type PathJson = { readonly path: string }
 
-export type PathInput = string[]
+// export type AbsolutePath = `/${string}`
+
+export type PathSegments = string[]
+
+export type PathInput = (PathSegments[number] | PathJson)[]
 
 //// Path ////
 
@@ -15,11 +19,15 @@ export type PathInput = string[]
  */
 export class Path implements PathJson {
     static readonly isAbsolute = isAbsolute
+    // (...input: PathInput) => input is AbsolutePath
 
     static readonly isRelative = isRelative
 
     static resolve(...pathInput: PathInput) {
-        const segments = pathInput.map(seg => seg)
+        //
+        const segments: PathSegments = pathInput.map(seg =>
+            typeof seg === 'string' ? seg : seg.path
+        )
 
         return resolve(...segments)
     }
@@ -44,21 +52,24 @@ export class Path implements PathJson {
         return basename(this.path)
     }
 
-    relative(...pathInput: PathInput) {
+    /**
+     * Resolve a path relative to this location from the input
+     */
+    relative(...pathInput: PathSegments) {
         return relative(this.path, Path.resolve(...pathInput))
     }
 
     /**
      * Check if the given path is relative to the current path.
      */
-    isRelative(...pathInput: PathInput): boolean {
+    isRelative(...pathInput: PathSegments): boolean {
         return isRelative(this.path, Path.resolve(...pathInput))
     }
 
     /**
      * Resolve the given segments against the path.
      */
-    resolve(...pathInput: PathInput) {
+    resolve(...pathInput: PathSegments) {
         return Path.resolve(this.path, ...pathInput)
     }
 

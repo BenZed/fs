@@ -3,7 +3,7 @@ import { Stats } from 'fs'
 
 import { Nav } from './nav'
 import { File } from './file'
-import { PathInput } from './path'
+import { PathSegments } from './path'
 
 //// Types ////
 
@@ -36,7 +36,7 @@ export class Dir extends Nav {
     /**
      * Create a new {@link Dir} from a given path input
      */
-    static from(...pathInput: PathInput): Dir {
+    static from(...pathInput: PathSegments): Dir {
         return new Dir(Nav.resolve(...pathInput))
     }
 

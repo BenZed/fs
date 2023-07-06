@@ -90,4 +90,21 @@ describe(Path.name + ' static', () => {
     test(Path.isRelative.name, () =>
         expect(Path.isAbsolute).toBe(path.isAbsolute)
     )
+
+    test(Path.resolve.name, () => {
+        expect(Path.resolve('/ace', 'of', 'base')).toEqual('/ace/of/base')
+
+        expect(Path.resolve('ace', 'of', 'base')).toEqual(
+            process.cwd() + '/ace/of/base'
+        )
+
+        expect(Path.resolve({ path: '/ace/of/base' })).toEqual('/ace/of/base')
+        expect(Path.resolve({ path: '/ace/of/base' }, 'chase')).toEqual(
+            '/ace/of/base/chase'
+        )
+
+        expect(Path.resolve({ path: '/ace' }, { path: '/of/base' })).toEqual(
+            '/of/base'
+        )
+    })
 })

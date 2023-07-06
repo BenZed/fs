@@ -5,7 +5,7 @@ import { Stat } from './stat'
 import type { File } from './file'
 import type { Dir } from './dir'
 import { isRelative } from './util'
-import { PathInput } from './path'
+import { PathSegments } from './path'
 
 //// EsLint ////
 /* eslint-disable 
@@ -19,7 +19,7 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative File
      */
-    file(...pathInput: PathInput) {
+    file(...pathInput: PathSegments) {
         const { File } = require('./file') as typeof import('./file')
         return new File(this.resolve(...pathInput), this.accessPath)
     }
@@ -36,7 +36,7 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative Dir
      */
-    dir(...pathInput: PathInput) {
+    dir(...pathInput: PathSegments) {
         const { Dir } = require('./dir') as typeof import('./dir')
         return new Dir(this.resolve(...pathInput), this.accessPath)
     }
@@ -80,7 +80,7 @@ export class Nav extends Stat {
     /**
      * Removes a file or directory.
      */
-    async remove(...pathInput: PathInput) {
+    async remove(...pathInput: PathSegments) {
         // TODO this method really doesn't fit here.
         this.assertInAccessPath(...pathInput)
 
