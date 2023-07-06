@@ -55,6 +55,26 @@ describe(read.name, () => {
             jokeNoAccess.write('I have erased this joke!')
         ).rejects.toThrow('permission denied')
     })
+
+    test('optional transform argument', async () => {
+        const lines = await joke.read(c => c.split('\n'))
+        expect(lines).toEqual(await joke.read().then(c => c.split('\n')))
+    })
+})
+
+const { readLines } = File.prototype
+describe(readLines.name, () => {
+    test('gets content from a file as lines', async () => {
+        await expect(joke.readLines()).resolves.toEqual(
+            await TEST_DIR.readFile('joke.txt').then(c => c.split('\n'))
+        )
+    })
+
+    test('optional delimiter argument', async () => {
+        await expect(joke.readLines('prefer')).resolves.toEqual(
+            await TEST_DIR.readFile('joke.txt').then(c => c.split('prefer'))
+        )
+    })
 })
 
 const { write } = File.prototype

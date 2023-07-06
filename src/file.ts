@@ -8,6 +8,8 @@ import { PathInput } from './path'
 
 type WriteInput = string[] | [File]
 
+type ReadTransform = (content: string) => unknown
+
 //// Main ////
 
 /**
@@ -31,12 +33,32 @@ class File extends Nav {
 
     //// Read Interface ////
 
-    async read() {
+    /**
+     * Read the contents of a file
+     */
+    async read(): Promise<string>
+
+    /**
+     * Apply a transform method to the contents of a file
+     */
+    async read<T extends ReadTransform>(transform: T): Promise<ReturnType<T>>
+    async read(transform?: ReadTransform): Promise<unknown> {
         this.assertInAccessPath()
 
         const content = await readFile(this.path, 'utf-8')
-        return content
+        return transform ? transform(content) : content
     }
+
+    /**
+     * Read the contents of a file, split into lines
+     **/
+    async readLines(delimiter = '\n') {
+        return this.read(c => c.split(delimiter))
+    }
+
+    // TODO: * eachLine(), * stream()
+
+    //// Write Interface ////
 
     async write(...input: WriteInput) {
         await writeToFile(this, input, true)
@@ -63,6 +85,7 @@ function isFileInput(input: WriteInput): input is [File] {
     return input[0] instanceof File
 }
 
+// TODO: encoding / streams
 async function writeToFile(
     file: File,
     input: WriteInput,
