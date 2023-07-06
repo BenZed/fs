@@ -1,10 +1,11 @@
-import { rm as removeFileOrDir } from 'fs/promises'
+import { rm as removeFileOrDir, rename } from 'fs/promises'
 
 import { Stat } from './stat'
 
 import type { File } from './file'
 import type { Dir } from './dir'
 import { isRelative } from './util'
+import { PathInput } from './path'
 
 //// EsLint ////
 /* eslint-disable 
@@ -18,9 +19,9 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative File
      */
-    file(...relPath: string[]) {
+    file(...pathInput: PathInput) {
         const { File } = require('./file') as typeof import('./file')
-        return new File(this.resolve(...relPath), this.accessPath)
+        return new File(this.resolve(...pathInput), this.accessPath)
     }
 
     isFile(): this is File {
@@ -35,9 +36,9 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative Dir
      */
-    dir(...relPath: string[]) {
+    dir(...pathInput: PathInput) {
         const { Dir } = require('./dir') as typeof import('./dir')
-        return new Dir(this.resolve(...relPath), this.accessPath)
+        return new Dir(this.resolve(...pathInput), this.accessPath)
     }
 
     isDir(): this is Dir {
@@ -66,19 +67,29 @@ export class Nav extends Stat {
         }
     }
 
+    // TODO figure me out
+    // async move(...pathInput: PathInput) {
+    //     this.assertInAccessPath(...pathInput)
+    //     const targetPath = Nav.isAbsolute(Nav.resolve(...pathInput))
+    //         ? Nav.resolve(...pathInput)
+    //         : this.resolve(...pathInput)
+    //     console.log({ targetPath })
+    //     await rename(this.path, targetPath)
+    // }
+
     /**
      * Removes a file or directory.
      */
-    async remove(...relPath: string[]) {
+    async remove(...pathInput: PathInput) {
         // TODO this method really doesn't fit here.
-        this.assertInAccessPath(...relPath)
+        this.assertInAccessPath(...pathInput)
 
-        const targetExists = await this.exists(...relPath)
+        const targetExists = await this.exists(...pathInput)
         if (!targetExists) {
             return false
         }
 
-        const targetPath = this.resolve(...relPath)
+        const targetPath = this.resolve(...pathInput)
         await removeFileOrDir(targetPath, { recursive: true })
 
         return true
