@@ -1,4 +1,4 @@
-import { rm as removeFileOrDir, rename } from 'fs/promises'
+import { rm as removeFileOrDir } from 'fs/promises'
 
 import { Stat } from './stat'
 
@@ -11,6 +11,11 @@ import { PathSegments } from './path'
 /* eslint-disable 
     @typescript-eslint/no-var-requires,
 */
+
+//// TODO ////
+// Nav, Dir, File should all have the same implementation at
+// runtime. The delineation between the available interfaces
+// should be done with type-rubric.
 
 /**
  * Interface elements that are in both File and Dir
@@ -52,7 +57,7 @@ export class Nav extends Stat {
         return this.dir('../')
     }
 
-    *eachParent() {
+    *eachParent(): Iterable<Dir> {
         let { parent: dir } = this
 
         while (dir.parent.path !== dir.path) {

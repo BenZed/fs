@@ -12,6 +12,7 @@ import * as TEST_DIR from './test-dir.util.test'
 import { Stat } from './stat'
 
 import * as fs from 'fs/promises'
+import { Path } from './path'
 
 //// Setup ////
 
@@ -72,10 +73,17 @@ describe(exists.name, () => {
 const { isInAccessPath } = Stat.prototype
 describe(isInAccessPath.name, () => {
     test(`returns true if path is accessible`, () => {
-        expect(jailDir.isInAccessPath('../')).toBe(false)
+        expect(dir.isInAccessPath('../')).toBe(true)
     })
     test(`returns false if path is not accessible`, () => {
-        expect(dir.isInAccessPath('../')).toBe(true)
+        expect(jailDir.isInAccessPath('../b')).toBe(false)
+    })
+    test(`accepts a ${Path.name} object`, () => {
+        const accessibleStat = new Stat(jailDir.resolve('b'))
+        expect(jailDir.isInAccessPath(accessibleStat)).toBe(true)
+
+        const inAccessibleStat = new Stat(jailDir.resolve('../b'))
+        expect(jailDir.isInAccessPath(inAccessibleStat)).toBe(false)
     })
 })
 
@@ -86,10 +94,22 @@ describe(assertInAccessPath.name, () => {
             'permission denied'
         )
     })
+
     test(`does not throw otherwise`, () => {
         expect(jailDir.assertInAccessPath()).toBe(undefined)
     })
+
     test(`works with provided relative path`, () => {
-        expect(jailDir.assertInAccessPath('poem')).toBe(undefined)
+        expect(jailDir.assertInAccessPath('b')).toBe(undefined)
+    })
+
+    test(`accepts a ${Path.name} object`, () => {
+        const accessibleStat = new Stat(jailDir.resolve('b'))
+        expect(jailDir.assertInAccessPath(accessibleStat)).toBe(undefined)
+
+        const inAccessibleStat = new Stat(jailDir.resolve('../b'))
+        expect(() => jailDir.assertInAccessPath(inAccessibleStat)).toThrow(
+            'permission denied'
+        )
     })
 })

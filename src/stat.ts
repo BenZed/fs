@@ -3,7 +3,7 @@ import { Stats } from 'fs'
 
 import { isRelative } from './util'
 
-import { Path, PathSegments } from './path'
+import { Path, PathInput, PathSegments } from './path'
 
 /**
  * Expanding on Path, the stat class provides information about
@@ -70,7 +70,7 @@ export class Stat extends Path {
     /**
      * Returns true if the configured path is accessible based on the accessPath.
      */
-    isInAccessPath(...pathInput: PathSegments) {
+    isInAccessPath(...pathInput: PathInput) {
         try {
             this.assertInAccessPath(...pathInput)
             return true
@@ -82,10 +82,12 @@ export class Stat extends Path {
     /**
      * Asserts if the configured path is accessible based on the accessPath
      */
-    assertInAccessPath(...pathInput: PathSegments) {
+    assertInAccessPath(...pathInput: PathInput) {
         if (this.accessPath === undefined) return
 
-        const path = this.resolve(...pathInput)
+        const path = Path.isAbsolute(...pathInput)
+            ? Path.resolve(...pathInput)
+            : Path.resolve(this.path, ...pathInput)
 
         if (!isRelative(this.accessPath, path))
             throw new Error(`EACCES: permission denied, access '${path}'`)
