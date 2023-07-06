@@ -87,6 +87,14 @@ describe(write.name, () => {
         expect(await story.read()).toContain(storyLines.join('\n'))
     })
 
+    test(`can take a file as input`, async () => {
+        const jokeCopy = joke.file('../joke-copy.txt')
+
+        await jokeCopy.write(joke)
+
+        expect(await jokeCopy.read()).toEqual(await joke.read())
+    })
+
     test(`respects ${'accessPath' satisfies keyof File} property`, async () => {
         await expect(
             jokeNoAccess.write('I have erased this joke!')

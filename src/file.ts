@@ -4,6 +4,10 @@ import { writeFile, readFile, mkdir as makeDir } from 'fs/promises'
 import { Nav } from './nav'
 import { PathInput } from './path'
 
+//// Types ////
+
+type WriteInput = string[] | [File]
+
 //// Main ////
 
 /**
@@ -11,7 +15,7 @@ import { PathInput } from './path'
  */
 class File extends Nav {
     /**
-     * Create a new {@link Dir} from a given path input
+     * Create a new {@link File} from a given path input
      */
     static from(...pathInput: PathInput): File {
         return new File(Nav.resolve(...pathInput))
@@ -34,16 +38,16 @@ class File extends Nav {
         return content
     }
 
-    async write(...lines: string[]) {
-        await writeLines(this, lines, true)
+    async write(...input: WriteInput) {
+        await writeToFile(this, input, true)
     }
 
-    async append(...lines: string[]) {
-        await writeLines(this, lines, false)
+    async append(...input: WriteInput) {
+        await writeToFile(this, input, false)
     }
 
     async erase() {
-        await writeLines(this, [], true)
+        await writeToFile(this, [], true)
     }
 
     override async remove() {
@@ -55,18 +59,27 @@ class File extends Nav {
 
 //// Helper ////
 
-async function writeLines(
+function isFileInput(input: WriteInput): input is [File] {
+    return input[0] instanceof File
+}
+
+async function writeToFile(
     file: File,
-    lines: string[],
+    input: WriteInput,
     eraseExistingContent: boolean
 ) {
     file.assertInAccessPath()
 
+    // Ensure path exists
     if (!(await file.exists())) {
         await makeDir(path.dirname(file.path), { recursive: true })
     }
 
-    await writeFile(file.path, lines.join('\n'), {
+    const content = isFileInput(input)
+        ? await input[0].read()
+        : input.join('\n')
+
+    await writeFile(file.path, content, {
         flag: eraseExistingContent ? 'w' : 'a'
     })
 }
