@@ -1,11 +1,24 @@
 import { isAbsolute, relative, resolve, basename } from 'path'
 import { isRelative } from './util'
 
+//// Types ////
+
+type PathJson = { readonly path: string }
+type PathInput = string[]
+
+//// Path ////
+
 /**
  * base class for a file system cursor consisting only of the path state
  * and related method
  */
-export class Path {
+export class Path implements PathJson {
+    static resolve(...pathInput: PathInput) {
+        const segments = pathInput.map(seg => seg)
+
+        return resolve(...segments)
+    }
+
     //// Construct ////
 
     readonly path: string
@@ -26,26 +39,22 @@ export class Path {
         return basename(this.path)
     }
 
-    relative(...pathSegments: string[]) {
-        return relative(this.path, resolve(...pathSegments))
+    relative(...pathInput: PathInput) {
+        return relative(this.path, Path.resolve(...pathInput))
     }
 
     /**
      * Check if the given path is relative to the current path.
-     * @param targetPath - The path to check.
-     * @returns True if the path is relative, false otherwise.
      */
-    isRelative(...pathSegments: string[]): boolean {
-        return isRelative(this.path, resolve(...pathSegments))
+    isRelative(...pathInput: PathInput): boolean {
+        return isRelative(this.path, Path.resolve(...pathInput))
     }
 
     /**
      * Resolve the given segments against the path.
-     * @param pathSegments - The segments to resolve.
-     * @returns The resolved path.
      */
-    resolve(...pathSegments: string[]) {
-        return resolve(this.path, ...pathSegments)
+    resolve(...pathInput: PathInput) {
+        return Path.resolve(this.path, ...pathInput)
     }
 
     //// Builtins ////
@@ -60,7 +69,7 @@ export class Path {
     /**
      * Get the JSON representation of the path.
      */
-    toJSON() {
+    toJSON(): PathJson {
         const { path } = this
         return {
             path
