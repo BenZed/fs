@@ -8,20 +8,20 @@ import * as path from 'path'
 
 //// Setup ////
 
-let dir: Path
+let testDir: Path
 beforeAll(() => {
-    dir = new Path(TEST_DIR.path)
+    testDir = new Path(TEST_DIR.path)
 })
 
 //// Tests ////
 
 describe(`new ${Path.name}`, () => {
     test(`sets ${'path' satisfies keyof Path}`, () => {
-        expect(dir.path).toEqual(TEST_DIR.path)
+        expect(testDir.path).toEqual(TEST_DIR.path)
     })
 
     test('name' satisfies keyof Path, () => {
-        expect(dir.name).toEqual(path.parse(TEST_DIR.path).name)
+        expect(testDir.name).toEqual(path.parse(TEST_DIR.path).name)
     })
 
     test('relative paths are resolved from process.cwd()', () => {
@@ -34,32 +34,49 @@ describe(`new ${Path.name}`, () => {
 const { isRelative } = Path.prototype
 describe(isRelative.name, () => {
     test(`returns true for relative paths`, () => {
-        expect(dir.isRelative(TEST_DIR.resolve('child'))).toBe(true)
+        expect(testDir.isRelative(TEST_DIR.resolve('child'))).toBe(true)
     })
     test(`returns false for non relative paths`, () => {
-        expect(dir.isRelative(TEST_DIR.resolve('../'))).toBe(false)
+        expect(testDir.isRelative(TEST_DIR.resolve('../'))).toBe(false)
     })
     test(`returns true same path`, () => {
-        expect(dir.isRelative(TEST_DIR.path)).toBe(true)
+        expect(testDir.isRelative(TEST_DIR.path)).toBe(true)
+    })
+})
+
+const { relative } = Path.prototype
+describe(relative.name, () => {
+    test(`gets the path of the input relative to this location`, () => {
+        //
+        const a = new Path(testDir.relative('a'))
+        const b = new Path(a.resolve('to', 'b'))
+
+        const aToB = a.relative(b.path)
+        expect(aToB).toEqual('to/b')
+        expect(a.resolve(aToB)).toEqual(b.path)
+
+        const bToA = b.relative(a.path)
+        expect(bToA).toEqual('../..')
+        expect(b.resolve(bToA)).toEqual(a.path)
     })
 })
 
 const { resolve } = Path.prototype
 test(resolve.name, () => {
-    expect(dir.resolve('sub', 'dir')).toEqual(
-        path.resolve(dir.path, 'sub', 'dir')
+    expect(testDir.resolve('sub', 'dir')).toEqual(
+        path.resolve(testDir.path, 'sub', 'dir')
     )
 })
 
 describe('built-ins', () => {
     const { toString } = Path.prototype
     test(toString.name, () => {
-        expect(dir.toString()).toEqual(TEST_DIR.path)
+        expect(testDir.toString()).toEqual(TEST_DIR.path)
     })
 
     const { toJSON } = Path.prototype
     test(toJSON.name, () => {
-        expect(JSON.stringify(dir)).toEqual(
+        expect(JSON.stringify(testDir)).toEqual(
             JSON.stringify({ path: TEST_DIR.path })
         )
     })

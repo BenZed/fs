@@ -13,6 +13,10 @@ type PathInput = string[]
  * and related method
  */
 export class Path implements PathJson {
+    static readonly isAbsolute = isAbsolute
+
+    static readonly isRelative = isRelative
+
     static resolve(...pathInput: PathInput) {
         const segments = pathInput.map(seg => seg)
 
