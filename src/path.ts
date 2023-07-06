@@ -3,8 +3,9 @@ import { isRelative } from './util'
 
 //// Types ////
 
-type PathJson = { readonly path: string }
-type PathInput = string[]
+export type PathJson = { readonly path: string }
+
+export type PathInput = string[]
 
 //// Path ////
 

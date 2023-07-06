@@ -1,8 +1,8 @@
-import fs, { dir, file } from './index'
+import fs from './index'
 import { Dir } from './dir'
 import { File } from './file'
 
-import { it, test, expect, describe } from '@jest/globals'
+import { it, expect, describe } from '@jest/globals'
 
 //// Tests ////
 
@@ -15,6 +15,3 @@ describe(fs.name, () => {
         expect(fs('place.txt') satisfies File).toBeInstanceOf(File)
     })
 })
-
-test(dir.name, () => expect(dir('place')).toBeInstanceOf(Dir))
-test(file.name, () => expect(file('place.txt')).toBeInstanceOf(File))

@@ -2,6 +2,7 @@ import fs from 'fs/promises'
 
 import { Nav } from './nav'
 import { File } from './file'
+import { PathInput } from './path'
 
 //// Types ////
 
@@ -15,6 +16,13 @@ type ReadOptions = { recursive: boolean } | { depth: number }
  * Properties and methods for interacting with files on the file system.
  */
 export class Dir extends Nav {
+    /**
+     * Create a new {@link Dir} from a given path input
+     */
+    static from(...pathInput: PathInput): Dir {
+        return new Dir(Nav.resolve(...pathInput))
+    }
+
     /**
      * Get a list of {@link File} or {@link Dir}
      */

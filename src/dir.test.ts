@@ -152,3 +152,7 @@ describe(each.name, () => {
         expect.assertions(1)
     })
 })
+
+test(`${Dir.name}.${Dir.from.name}`, () => {
+    expect(Dir.from('a', 'b', 'c')).toEqual(new Dir('a/b/c'))
+})

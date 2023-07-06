@@ -166,3 +166,7 @@ describe(remove.name, () => {
         await expect(jokeNoAccess.remove()).rejects.toThrow('permission denied')
     })
 })
+
+test(`${File.name}.${File.from.name}`, () => {
+    expect(File.from('a', 'b', 'c.txt')).toEqual(new File('a/b/c.txt'))
+})

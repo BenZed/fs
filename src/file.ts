@@ -2,6 +2,7 @@ import * as path from 'path'
 
 import { writeFile, readFile, mkdir as makeDir } from 'fs/promises'
 import { Nav } from './nav'
+import { PathInput } from './path'
 
 //// Main ////
 
@@ -9,6 +10,13 @@ import { Nav } from './nav'
  * Properties and methods for interacting with files on the file system.
  */
 class File extends Nav {
+    /**
+     * Create a new {@link Dir} from a given path input
+     */
+    static from(...pathInput: PathInput): File {
+        return new File(Nav.resolve(...pathInput))
+    }
+
     override get name() {
         return path.basename(this.path, this.ext)
     }
