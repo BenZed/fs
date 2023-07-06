@@ -36,7 +36,6 @@ describe('construct', () => {
 
     test('restrict specific path path', () => {
         const poemsDir = new Dir(TEST_DIR.path, TEST_DIR.resolve('poems'))
-
         expect(poemsDir.accessPath).toEqual(TEST_DIR.resolve('poems'))
     })
 })
@@ -112,7 +111,7 @@ describe(dirs.name, () => {
     test(`options.recursive false`, async () => {
         const dirs = await testDir.dirs({ recursive: false })
         expect(dirs).toEqual([
-            // only 2
+            // only 1
             testDir.file('poems')
         ])
     })
@@ -137,6 +136,22 @@ describe(each.name, () => {
             )
         }
         expect.assertions(1)
+    })
+
+    test('optional filter argument', async () => {
+        for await (const file of testDir.each((f): f is File => f.isFile())) {
+            expect(file.isFile()).toBe(true)
+            file satisfies File
+        }
+    })
+
+    test('optional options.filter argument', async () => {
+        for await (const dir of testDir.each({
+            filter: (f): f is Dir => f.isDir()
+        })) {
+            expect(dir.isDir()).toBe(true)
+            dir satisfies Dir
+        }
     })
 
     test(`respects ${'accessPath' satisfies keyof Dir} property`, async () => {
