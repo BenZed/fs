@@ -81,3 +81,13 @@ describe('built-ins', () => {
         )
     })
 })
+
+describe(Path.name + ' static', () => {
+    test(Path.isAbsolute.name, () =>
+        expect(Path.isAbsolute).toBe(path.isAbsolute)
+    )
+
+    test(Path.isRelative.name, () =>
+        expect(Path.isAbsolute).toBe(path.isAbsolute)
+    )
+})
