@@ -3,7 +3,7 @@ import { Stats } from 'fs'
 
 import { isRelative } from './util'
 
-import { Path, PathInput } from './path'
+import { Path, PathInput, PathSegments } from './path'
 
 /**
  * Expanding on Path, the stat class provides information about
@@ -46,7 +46,7 @@ export class Stat extends Path {
      * Get the stats of a file or directory.
      * @returns The stats of the file or directory
      */
-    async stats(...pathInput: PathInput): Promise<Stats> {
+    async stats(...pathInput: PathSegments): Promise<Stats> {
         this.assertInAccessPath(...pathInput)
         const resolvedPath = this.resolve(...pathInput)
 
@@ -58,7 +58,7 @@ export class Stat extends Path {
      * Check if a file or directory exists.
      * @returns True if the file or directory exists, false otherwise.
      */
-    async exists(...pathInput: PathInput) {
+    async exists(...pathInput: PathSegments) {
         try {
             await this.stats(...pathInput)
             return true
@@ -85,7 +85,9 @@ export class Stat extends Path {
     assertInAccessPath(...pathInput: PathInput) {
         if (this.accessPath === undefined) return
 
-        const path = this.resolve(...pathInput)
+        const path = Path.isAbsolute(...pathInput)
+            ? Path.resolve(...pathInput)
+            : Path.resolve(this.path, ...pathInput)
 
         if (!isRelative(this.accessPath, path))
             throw new Error(`EACCES: permission denied, access '${path}'`)

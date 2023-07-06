@@ -42,6 +42,14 @@ describe(isRelative.name, () => {
     test(`returns true same path`, () => {
         expect(testDir.isRelative(TEST_DIR.path)).toBe(true)
     })
+
+    test(`accepts a ${Path.name} as input`, () => {
+        expect(testDir.isRelative(TEST_DIR)).toBe(true)
+        expect(testDir.isRelative(new Path(TEST_DIR.resolve('b')))).toBe(true)
+        expect(testDir.isRelative(new Path(TEST_DIR.resolve('../out')))).toBe(
+            false
+        )
+    })
 })
 
 const { relative } = Path.prototype
@@ -58,6 +66,14 @@ describe(relative.name, () => {
         const bToA = b.relative(a.path)
         expect(bToA).toEqual('../..')
         expect(b.resolve(bToA)).toEqual(a.path)
+    })
+
+    test(`accepts a ${Path.name} as input`, () => {
+        //
+        const a = new Path(testDir.resolve('a'))
+        const b = new Path(testDir.resolve('a', 'b'))
+
+        expect(a.relative(b)).toEqual('b')
     })
 })
 
@@ -83,11 +99,34 @@ describe('built-ins', () => {
 })
 
 describe(Path.name + ' static', () => {
-    test(Path.isAbsolute.name, () =>
-        expect(Path.isAbsolute).toBe(path.isAbsolute)
-    )
+    test(Path.isAbsolute.name, () => {
+        expect(Path.isAbsolute('ace')).toBe(false)
+        expect(Path.isAbsolute('ace', '/ace')).toBe(true)
+        expect(Path.isAbsolute({ path: 'ace' })).toBe(false)
+        expect(Path.isAbsolute({ path: 'ace' }, { path: '/ace' })).toBe(true)
+    })
 
-    test(Path.isRelative.name, () =>
-        expect(Path.isAbsolute).toBe(path.isAbsolute)
-    )
+    test(Path.isRelative.name, () => {
+        expect(Path.isRelative('ace', 'base')).toBe(false)
+        expect(Path.isRelative('ace', 'ace/base')).toBe(true)
+        expect(Path.isRelative({ path: 'ace' }, 'ace/base')).toBe(true)
+        expect(Path.isRelative({ path: 'ace' }, 'base')).toBe(false)
+    })
+
+    test(Path.resolve.name, () => {
+        expect(Path.resolve('/ace', 'of', 'base')).toEqual('/ace/of/base')
+
+        expect(Path.resolve('ace', 'of', 'base')).toEqual(
+            process.cwd() + '/ace/of/base'
+        )
+
+        expect(Path.resolve({ path: '/ace/of/base' })).toEqual('/ace/of/base')
+        expect(Path.resolve({ path: '/ace/of/base' }, 'chase')).toEqual(
+            '/ace/of/base/chase'
+        )
+
+        expect(Path.resolve({ path: '/ace' }, { path: '/of/base' })).toEqual(
+            '/of/base'
+        )
+    })
 })

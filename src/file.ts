@@ -2,7 +2,7 @@ import * as path from 'path'
 
 import { writeFile, readFile, mkdir as makeDir } from 'fs/promises'
 import { Nav } from './nav'
-import { PathInput } from './path'
+import { PathSegments } from './path'
 
 //// Types ////
 
@@ -19,7 +19,7 @@ class File extends Nav {
     /**
      * Create a new {@link File} from a given path input
      */
-    static from(...pathInput: PathInput): File {
+    static from(...pathInput: PathSegments): File {
         return new File(Nav.resolve(...pathInput))
     }
 

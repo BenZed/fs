@@ -1,16 +1,21 @@
-import { rm as removeFileOrDir, rename } from 'fs/promises'
+import { rm as removeFileOrDir } from 'fs/promises'
 
 import { Stat } from './stat'
 
 import type { File } from './file'
 import type { Dir } from './dir'
 import { isRelative } from './util'
-import { PathInput } from './path'
+import { PathSegments } from './path'
 
 //// EsLint ////
 /* eslint-disable 
     @typescript-eslint/no-var-requires,
 */
+
+//// TODO ////
+// Nav, Dir, File should all have the same implementation at
+// runtime. The delineation between the available interfaces
+// should be done with type-rubric.
 
 /**
  * Interface elements that are in both File and Dir
@@ -19,7 +24,7 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative File
      */
-    file(...pathInput: PathInput) {
+    file(...pathInput: PathSegments) {
         const { File } = require('./file') as typeof import('./file')
         return new File(this.resolve(...pathInput), this.accessPath)
     }
@@ -36,7 +41,7 @@ export class Nav extends Stat {
     /**
      * Navigate to a relative Dir
      */
-    dir(...pathInput: PathInput) {
+    dir(...pathInput: PathSegments) {
         const { Dir } = require('./dir') as typeof import('./dir')
         return new Dir(this.resolve(...pathInput), this.accessPath)
     }
@@ -52,7 +57,7 @@ export class Nav extends Stat {
         return this.dir('../')
     }
 
-    *eachParent() {
+    *eachParent(): Iterable<Dir> {
         let { parent: dir } = this
 
         while (dir.parent.path !== dir.path) {
@@ -80,7 +85,7 @@ export class Nav extends Stat {
     /**
      * Removes a file or directory.
      */
-    async remove(...pathInput: PathInput) {
+    async remove(...pathInput: PathSegments) {
         // TODO this method really doesn't fit here.
         this.assertInAccessPath(...pathInput)
 
