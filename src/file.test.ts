@@ -62,6 +62,16 @@ describe(read.name, () => {
     })
 })
 
+const { copy } = File.prototype
+describe(copy.name, () => {
+    test('copies a file', async () => {
+        const riddle = joke.file('../riddle.txt')
+        await joke.copy(riddle)
+
+        await expect(joke.read()).resolves.toEqual(await riddle.read())
+    })
+})
+
 const { readLines } = File.prototype
 describe(readLines.name, () => {
     test('gets content from a file as lines', async () => {

@@ -2,11 +2,11 @@ import * as path from 'path'
 
 import { writeFile, readFile, mkdir as makeDir } from 'fs/promises'
 import { Nav } from './nav'
-import { PathSegments } from './path'
+import { PathJson, PathSegments } from './path'
 
 //// Types ////
 
-type WriteInput = string[] | [File]
+type WriteInput = string[] | [PathJson]
 
 type ReadTransform = (content: string) => unknown
 
@@ -68,6 +68,10 @@ class File extends Nav {
         await writeToFile(this, input, false)
     }
 
+    async copy(file: File) {
+        return this.write(file)
+    }
+
     async erase() {
         await writeToFile(this, [], true)
     }
@@ -99,7 +103,7 @@ async function writeToFile(
     }
 
     const content = isFileInput(input)
-        ? await input[0].read()
+        ? await readFile(input[0].path) // input[0].read() once we have encoding support
         : input.join('\n')
 
     await writeFile(file.path, content, {
