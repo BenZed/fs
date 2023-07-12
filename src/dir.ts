@@ -7,25 +7,26 @@ import { PathSegments } from './path'
 
 //// Types ////
 
-type DepthOptions = { recursive?: boolean } | { depth?: number }
+export type DepthOptions = { recursive?: boolean } | { depth?: number }
 
-type ReadFilter = (input: File | Dir, stats: Stats) => boolean
+export type ReadFilter = (input: File | Dir, stats: Stats) => boolean
 
-type ReadGuard<T extends Dir | File> = (
+export type ReadFilterGuard<T extends Dir | File> = (
     input: Dir | File,
     stats: Stats
 ) => input is T
 
-type ReadOptions =
+export type ReadOptions =
     | DepthOptions
     | ReadFilter
     | (DepthOptions & { filter?: ReadFilter })
 
-type ReadOptionsOutput<T extends ReadOptions> = T extends ReadGuard<infer Tx>
-    ? Tx
-    : T extends { filter: ReadGuard<infer Tx> }
-    ? Tx
-    : Dir | File
+export type ReadOptionsOutput<T extends ReadOptions> =
+    T extends ReadFilterGuard<infer Tx>
+        ? Tx
+        : T extends { filter: ReadFilterGuard<infer Tx> }
+        ? Tx
+        : Dir | File
 
 //// Class ////
 
