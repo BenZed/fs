@@ -105,14 +105,7 @@ export class Dir extends Nav {
         options: ReadOptions = { depth: 1 }
     ): AsyncIterable<File | Dir> {
         //
-        const depth =
-            'recursive' in options
-                ? options.recursive
-                    ? Infinity
-                    : 1
-                : 'depth' in options && options.depth !== undefined
-                ? options.depth
-                : 1
+        const depth = toDepth(options)
 
         const filter =
             typeof options === 'function'
@@ -145,4 +138,14 @@ export class Dir extends Nav {
             }
         }
     }
+}
+
+export function toDepth(options: ReadOptions) {
+    if ('recursive' in options) return options.recursive === true ? Infinity : 1
+
+    if (!('depth' in options)) return 1
+
+    const depth = Number(options.depth)
+
+    return Number.isNaN(depth) ? 1 : depth
 }
