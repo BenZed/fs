@@ -1,6 +1,7 @@
 import * as QueryString from 'query-string'
 
-import { toDepth, type DepthOptions, type ReadFilter } from './dir'
+import { toDepth, type DepthOptions, type FileFilter } from './dir'
+import { File } from './file'
 
 //// Types ////
 
@@ -12,7 +13,8 @@ type FileQuery = DepthOptions & {
     //
     readonly ext?: string | string[]
     readonly name?: string | string[]
-    readonly contains?: string | string[]
+    // readonly contains?: string | string[]
+    // readonly size?: number | [number, number] // range
 }
 
 type FileQueryString = string
@@ -35,12 +37,12 @@ export function toFileQuery(
         ...options
     })
 
-    const { ext, name, contains, ...depthOptions } = object
+    const { ext, name, /*contains,*/ ...depthOptions } = object
 
     return {
         ext: toExt(ext),
         name: toHumanString(name),
-        contains: toHumanString(contains),
+        // contains: toHumanString(contains),
 
         depth: toDepth(depthOptions)
     }
@@ -69,15 +71,27 @@ export function fromFileQuery(fileQuery: FileQuery): string {
     return '?' + fileQueryString
 }
 
-export function toReadFilter(
+export function toFileFilter(
     fileQueryOrString: FileQuery | FileQueryString
-): ReadFilter {
-    const fileQuery =
+): FileFilter {
+    const query =
         typeof fileQueryOrString === 'string'
             ? toFileQuery(fileQueryOrString)
             : fileQueryOrString
 
-    throw new Error('not yet implemented')
+    return (file): file is File => {
+        if (!file.isFile()) return false
+
+        if (toStrings(query.ext).some(ext => file.ext === ext)) {
+            return true
+        }
+
+        if (toStrings(query.name).some(chars => file.name.includes(chars))) {
+            return true
+        }
+
+        return false
+    }
 }
 
 //// Helper ////
@@ -98,10 +112,10 @@ function toHumanString(input: unknown) {
 }
 
 function toStrings(input: unknown): string[] {
-    const raw: unknown[] = Array.isArray(input) ? input : [input]
+    const unknowns: unknown[] = Array.isArray(input) ? input : [input]
 
-    const sanitized = raw.filter((i): i is string => typeof i === 'string')
-    return sanitized
+    const strings = unknowns.filter((i): i is string => typeof i === 'string')
+    return strings
 }
 
 function preferSingleValue<T>(input: T[]): undefined | T | T[] {

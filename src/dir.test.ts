@@ -47,6 +47,7 @@ describe(read.name, () => {
         expect(contents).toEqual([
             testDir.file('joke.txt'),
             testDir.dir('poems'),
+            testDir.file('readme.md'),
             testDir.file('riddle.txt')
         ])
     })
@@ -58,9 +59,11 @@ describe(read.name, () => {
             testDir.dir('poems'),
             testDir.file('poems/haiku.txt'),
             testDir.file('poems/limerick.txt'),
+            testDir.file('poems/readme.md'),
             testDir.file('poems/sonnet.txt'),
             testDir.dir('poems/wip'),
             testDir.file('poems/wip/nursery-rhyme.txt'),
+            testDir.file('readme.md'),
             testDir.file('riddle.txt')
         ])
     })
@@ -72,6 +75,7 @@ describe(files.name, () => {
         const files: File[] = await testDir.files()
         expect(files).toEqual([
             testDir.file('joke.txt'),
+            testDir.file('readme.md'),
             testDir.file('riddle.txt')
         ])
     })
@@ -82,8 +86,10 @@ describe(files.name, () => {
             testDir.file('joke.txt'),
             testDir.file('poems/haiku.txt'),
             testDir.file('poems/limerick.txt'),
+            testDir.file('poems/readme.md'),
             testDir.file('poems/sonnet.txt'),
             testDir.file('poems/wip/nursery-rhyme.txt'),
+            testDir.file('readme.md'),
             testDir.file('riddle.txt')
         ])
     })

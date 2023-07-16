@@ -5,16 +5,22 @@ import { Nav } from './nav'
 import { File } from './file'
 import { PathSegments } from './path'
 
+//// Helper Types ////
+
+type ReadFilterGuard<T extends Dir | File> = (
+    input: Dir | File,
+    stats: Stats
+) => input is T
+
 //// Types ////
 
 export type DepthOptions = { recursive?: boolean } | { depth?: number }
 
 export type ReadFilter = (input: File | Dir, stats: Stats) => boolean
 
-export type ReadFilterGuard<T extends Dir | File> = (
-    input: Dir | File,
-    stats: Stats
-) => input is T
+export type FileFilter = ReadFilterGuard<File>
+
+export type DirFilter = ReadFilterGuard<Dir>
 
 export type ReadOptions =
     | DepthOptions

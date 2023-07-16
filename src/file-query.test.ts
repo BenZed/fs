@@ -1,6 +1,9 @@
-import { test, expect, describe } from '@jest/globals'
+import { test, expect, describe, beforeEach, afterAll } from '@jest/globals'
 
-import { fromFileQuery, toFileQuery, toReadFilter } from './file-query'
+import { fromFileQuery, toFileFilter, toFileQuery } from './file-query'
+import { Dir } from './dir'
+
+import * as TEST_DIR from './test-dir.util.test'
 
 //// Tests ////
 
@@ -30,7 +33,7 @@ describe(toFileQuery.name, () => {
         })
     })
 
-    for (const key of ['name', 'contains'])
+    for (const key of ['name' /*, 'contains'*/])
         describe(key, () => {
             test('single', () => {
                 expect(toFileQuery(`?${key}=final`)).toEqual({
@@ -106,7 +109,7 @@ describe(fromFileQuery.name, () => {
     for (const fileQueryString of [
         '?ext=ts',
         '?name=Boo',
-        '?contains=Arms,Legs',
+        // '?contains=Arms,Legs',
         '?ext=md,txt&name=README&recursive=true'
     ])
         test(fileQueryString, () => {
@@ -115,9 +118,41 @@ describe(fromFileQuery.name, () => {
         })
 })
 
-describe(toReadFilter.name, () => {
-    test.todo('files by extension')
-    test.todo('files by name')
+describe(toFileFilter.name, () => {
+    beforeEach(TEST_DIR.reset)
+    afterAll(TEST_DIR.erase)
+
+    const dir: Dir = Dir.from(TEST_DIR.path)
+
+    test('files by extension', async () => {
+        const getReadmes = toFileFilter({ ext: ['.md'] })
+
+        const readmes = await dir.read({ filter: getReadmes, recursive: true })
+        expect(readmes).toHaveLength(2)
+    })
+
+    test('files by extension via querystring input', async () => {
+        const getReadmes = toFileFilter('ext=md')
+
+        const readmes = await dir.read({ filter: getReadmes, recursive: true })
+        expect(readmes).toHaveLength(2)
+    })
+
+    //
+    test('files by name', async () => {
+        const getRiddles = toFileFilter({ name: 'riddle' })
+
+        const readmes = await dir.read({ filter: getRiddles, recursive: true })
+        expect(readmes).toHaveLength(1)
+    })
+
+    test('files by name via querystring input', async () => {
+        const getRiddles = toFileFilter('name=riddle')
+
+        const readmes = await dir.read({ filter: getRiddles, recursive: true })
+        expect(readmes).toHaveLength(1)
+    })
+
+    //
     test.todo('files by contents')
-    test.todo('depth')
 })
