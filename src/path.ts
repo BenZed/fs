@@ -5,9 +5,11 @@ import { isRelative } from './util'
 
 export type PathJson = { readonly path: string }
 
-// export type AbsolutePath = `/${string}`
+export type AbsolutePath = `/${string}`
 
-export type PathSegments = string[]
+export type RelativePath = string
+
+export type PathSegments = RelativePath[]
 
 export type PathInput = PathSegments | [PathJson]
 
@@ -25,6 +27,8 @@ export class Path implements PathJson {
      */
     static readonly SEPARATOR = sep
 
+    static isAbsolute(path: RelativePath | AbsolutePath): path is AbsolutePath
+    static isAbsolute(...pathInput: PathResolveInput): boolean
     static isAbsolute(...pathInput: PathResolveInput) {
         const segments = this._toSegments(...pathInput)
         return segments.some(isAbsolute)
@@ -49,13 +53,13 @@ export class Path implements PathJson {
 
     //// Construct ////
 
-    readonly path: string
-    constructor(path: string) {
+    readonly path: AbsolutePath
+    constructor(path: RelativePath | AbsolutePath) {
         if (!isAbsolute(path)) {
             path = resolve(process.cwd(), path)
         }
 
-        this.path = path
+        this.path = path as AbsolutePath
     }
 
     //// Path Interface ////

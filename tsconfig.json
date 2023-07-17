@@ -9,6 +9,8 @@
 
         "outDir": "./lib",
 
+        "types": ["node"],
+
         // Build Options
         "build": true,
         "target": "ES2022",

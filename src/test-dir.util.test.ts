@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import p from 'path'
+import { AbsolutePath } from './path'
 
 //// Test Utilities ////
 
@@ -21,7 +22,8 @@ export const path = p.resolve(__dirname, 'test-dir')
 /**
  * Resolve a path relative to the {@link path} dir
  */
-export const resolve = (relPath: string) => p.resolve(path, relPath)
+export const resolve = (relPath: string): AbsolutePath =>
+    p.resolve(path, relPath) as AbsolutePath
 
 /**
  * Delete the {@link path} dir and everything in it

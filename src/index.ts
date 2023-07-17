@@ -1,10 +1,11 @@
 import { extname } from 'path'
 import { Dir } from './dir'
 import { File } from './file'
+import { AbsolutePath, RelativePath } from './path'
 
 //// Contextual Convenience Method ////
 
-type Fs<S extends string> = string extends S
+type Fs<S extends RelativePath | AbsolutePath> = string extends S
     ? File | Dir // S is not static, so we're not sure
     : S extends `${string}.${string}`
     ? File // S has an extension, so we're assuming it is a File
@@ -15,7 +16,10 @@ type Fs<S extends string> = string extends S
  * to a location on the file system, depending on the
  * existence of an extension in the path.
  */
-function fs<S extends string>(path: S, restrict = false): Fs<S> {
+function fs<S extends RelativePath | AbsolutePath>(
+    path: S,
+    restrict = false
+): Fs<S> {
     const fileOrDir =
         extname(path) === '' ? dir(path, restrict) : file(path, restrict)
 
@@ -31,14 +35,14 @@ fs.file = file
 /**
  * Create a {@link Dir} cursor to a location on the file system.
  */
-function dir(path: string, restrict = false) {
+function dir(path: RelativePath | AbsolutePath, restrict = false) {
     return new Dir(path, restrict)
 }
 
 /**
  * Create a {@link File} cursor to a location on the file system.
  */
-function file(path: string, restrict = false) {
+function file(path: RelativePath | AbsolutePath, restrict = false) {
     return new File(path, restrict)
 }
 
@@ -49,3 +53,5 @@ export default fs
 export * from './dir'
 
 export * from './file'
+
+export { RelativePath, AbsolutePath }
