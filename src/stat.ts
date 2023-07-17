@@ -3,7 +3,13 @@ import { Stats } from 'fs'
 
 import { isRelative } from './util'
 
-import { Path, PathInput, PathSegments } from './path'
+import {
+    AbsolutePath,
+    Path,
+    PathInput,
+    PathSegments,
+    RelativePath
+} from './path'
 
 /**
  * Expanding on Path, the stat class provides information about
@@ -13,10 +19,10 @@ export class Stat extends Path {
     /**
      * path this instance has file-system access to
      */
-    readonly accessPath?: string
+    readonly accessPath?: AbsolutePath
 
     constructor(
-        path: string,
+        path: RelativePath | AbsolutePath,
         /**
          * Optionally restrict access to the given path
          */
@@ -24,20 +30,23 @@ export class Stat extends Path {
     )
 
     constructor(
-        path: string,
+        path: RelativePath | AbsolutePath,
 
         /**
          * Specific path to restrict file system access to.
          */
-        accessPath?: string
+        accessPath?: AbsolutePath
     )
-    constructor(path: string, accessPath?: boolean | string) {
+    constructor(
+        path: RelativePath | AbsolutePath,
+        accessPath?: boolean | AbsolutePath
+    ) {
         super(path)
 
         this.accessPath =
             typeof accessPath === 'boolean'
                 ? accessPath
-                    ? path
+                    ? this.path
                     : undefined
                 : accessPath
     }
