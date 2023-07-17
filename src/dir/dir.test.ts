@@ -7,10 +7,10 @@ import {
     afterAll
 } from '@jest/globals'
 
-import * as TEST_DIR from './test-dir.util.test'
+import * as TEST_DIR from '../test-dir.util.test'
 
 import { Dir } from './dir'
-import { File } from './file'
+import { File } from '../file'
 
 //// Setup ////
 
@@ -37,35 +37,6 @@ describe('construct', () => {
     test('restrict specific path path', () => {
         const poemsDir = new Dir(TEST_DIR.path, TEST_DIR.resolve('poems'))
         expect(poemsDir.accessPath).toEqual(TEST_DIR.resolve('poems'))
-    })
-})
-
-const { read } = Dir.prototype
-describe(read.name, () => {
-    test(`get a list of contained files or dirs`, async () => {
-        const contents = await testDir.read()
-        expect(contents).toEqual([
-            testDir.file('joke.txt'),
-            testDir.dir('poems'),
-            testDir.file('readme.md'),
-            testDir.file('riddle.txt')
-        ])
-    })
-
-    test(`options`, async () => {
-        const files = await testDir.read({ recursive: true })
-        expect(files).toEqual([
-            testDir.file('joke.txt'),
-            testDir.dir('poems'),
-            testDir.file('poems/haiku.txt'),
-            testDir.file('poems/limerick.txt'),
-            testDir.file('poems/readme.md'),
-            testDir.file('poems/sonnet.txt'),
-            testDir.dir('poems/wip'),
-            testDir.file('poems/wip/nursery-rhyme.txt'),
-            testDir.file('readme.md'),
-            testDir.file('riddle.txt')
-        ])
     })
 })
 
@@ -129,7 +100,7 @@ describe(each.name, () => {
         const contents: unknown[] = []
         for await (const content of testDir.each()) contents.push(content)
 
-        expect(contents).toEqual(await testDir.read())
+        expect(contents).toEqual(await testDir.each().toArray())
     })
 
     test(`throws on invalid depth argument`, async () => {
@@ -148,15 +119,6 @@ describe(each.name, () => {
         for await (const file of testDir.each((f): f is File => f.isFile())) {
             expect(file.isFile()).toBe(true)
             file satisfies File
-        }
-    })
-
-    test('optional options.filter argument', async () => {
-        for await (const dir of testDir.each({
-            filter: (f): f is Dir => f.isDir()
-        })) {
-            expect(dir.isDir()).toBe(true)
-            dir satisfies Dir
         }
     })
 
