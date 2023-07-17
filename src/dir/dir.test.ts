@@ -7,10 +7,10 @@ import {
     afterAll
 } from '@jest/globals'
 
-import * as TEST_DIR from './test-dir.util.test'
+import * as TEST_DIR from '../test-dir.util.test'
 
 import { Dir } from './dir'
-import { File } from './file'
+import { File } from '../file'
 
 //// Setup ////
 
@@ -40,38 +40,13 @@ describe('construct', () => {
     })
 })
 
-const { read } = Dir.prototype
-describe(read.name, () => {
-    test(`get a list of contained files or dirs`, async () => {
-        const contents = await testDir.read()
-        expect(contents).toEqual([
-            testDir.file('joke.txt'),
-            testDir.dir('poems'),
-            testDir.file('riddle.txt')
-        ])
-    })
-
-    test(`options`, async () => {
-        const files = await testDir.read({ recursive: true })
-        expect(files).toEqual([
-            testDir.file('joke.txt'),
-            testDir.dir('poems'),
-            testDir.file('poems/haiku.txt'),
-            testDir.file('poems/limerick.txt'),
-            testDir.file('poems/sonnet.txt'),
-            testDir.dir('poems/wip'),
-            testDir.file('poems/wip/nursery-rhyme.txt'),
-            testDir.file('riddle.txt')
-        ])
-    })
-})
-
 const { files } = Dir.prototype
 describe(files.name, () => {
     test(`get a list of contained files`, async () => {
         const files: File[] = await testDir.files()
         expect(files).toEqual([
             testDir.file('joke.txt'),
+            testDir.file('readme.md'),
             testDir.file('riddle.txt')
         ])
     })
@@ -82,8 +57,10 @@ describe(files.name, () => {
             testDir.file('joke.txt'),
             testDir.file('poems/haiku.txt'),
             testDir.file('poems/limerick.txt'),
+            testDir.file('poems/readme.md'),
             testDir.file('poems/sonnet.txt'),
             testDir.file('poems/wip/nursery-rhyme.txt'),
+            testDir.file('readme.md'),
             testDir.file('riddle.txt')
         ])
     })
@@ -123,7 +100,7 @@ describe(each.name, () => {
         const contents: unknown[] = []
         for await (const content of testDir.each()) contents.push(content)
 
-        expect(contents).toEqual(await testDir.read())
+        expect(contents).toEqual(await testDir.each().toArray())
     })
 
     test(`throws on invalid depth argument`, async () => {
@@ -142,15 +119,6 @@ describe(each.name, () => {
         for await (const file of testDir.each((f): f is File => f.isFile())) {
             expect(file.isFile()).toBe(true)
             file satisfies File
-        }
-    })
-
-    test('optional options.filter argument', async () => {
-        for await (const dir of testDir.each({
-            filter: (f): f is Dir => f.isDir()
-        })) {
-            expect(dir.isDir()).toBe(true)
-            dir satisfies Dir
         }
     })
 

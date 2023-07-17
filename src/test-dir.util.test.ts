@@ -68,6 +68,12 @@ export const reset = async () => {
     //
     await erase()
 
+    await writeFile('readme.md', [
+        '# Generated Files For Testing',
+        '',
+        'This folder contains files that are generated during testing.'
+    ])
+
     await writeFile('joke.txt', [
         'Why do programmers prefer dark mode?',
         'Because light attracts bugs!'
@@ -122,5 +128,11 @@ export const reset = async () => {
         'Violets are #0000FF,',
         'My code is a mess,',
         "But I won't be blue."
+    ])
+
+    await writeFile('poems/readme.md', [
+        '# Generated Poems',
+        '',
+        'This folder contains poems generated during testing.'
     ])
 }

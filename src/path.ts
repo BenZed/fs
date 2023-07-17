@@ -1,4 +1,4 @@
-import { isAbsolute, relative, resolve, basename } from 'path'
+import { isAbsolute, relative, resolve, basename, sep } from 'path'
 import { isRelative } from './util'
 
 //// Types ////
@@ -20,6 +20,11 @@ export type PathResolveInput = (PathSegments[number] | PathJson)[]
  * and related method
  */
 export class Path implements PathJson {
+    /**
+     * Platform specific file separator
+     */
+    static readonly SEPARATOR = sep
+
     static isAbsolute(...pathInput: PathResolveInput) {
         const segments = this._toSegments(...pathInput)
         return segments.some(isAbsolute)
