@@ -1,6 +1,7 @@
 export * from './dir'
 
 export {
+    EachOptions,
     EachFilter,
     EachQueryString,
     eachOptionsToQueryString,
