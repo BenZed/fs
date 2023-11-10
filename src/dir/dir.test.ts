@@ -11,6 +11,7 @@ import * as TEST_DIR from '../test-dir.util.test'
 
 import { Dir } from './dir'
 import { File } from '../file'
+import { execSync } from 'child_process'
 
 //// Setup ////
 

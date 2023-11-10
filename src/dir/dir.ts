@@ -1,4 +1,5 @@
 import { Stats } from 'fs'
+import { readdir } from 'fs/promises'
 
 import { Nav } from '../nav'
 import { PathSegments } from '../path'
@@ -26,6 +27,16 @@ export class Dir extends Nav {
         return new Dir(Nav.resolve(...pathInput))
     }
 
+    /**
+     * Read the names of all contained contents
+     */
+    read(option?: { recursive?: boolean }): Promise<string[]> {
+        return readdir(this.path, option)
+    }
+
+    /**
+     * Get an Array of contained {@link Dir}s
+     */
     dirs(options?: EachOptions): Promise<Dir[]>
     dirs(options: EachOptions, filter?: DirFilter): Promise<Dir[]>
     dirs(filter?: DirFilter): Promise<Dir[]>
@@ -37,6 +48,9 @@ export class Dir extends Nav {
         ).toArray()
     }
 
+    /**
+     * Get an Array of contained {@link Files}s
+     */
     files(options?: EachOptions): Promise<File[]>
     files(options: EachOptions, filter?: FileFilter): Promise<File[]>
     files(filter?: FileFilter): Promise<File[]>
@@ -48,6 +62,9 @@ export class Dir extends Nav {
         ).toArray()
     }
 
+    /**
+     * Iterate through each contained {@link File} or {@link Dir}
+     */
     each(options?: EachOptions): EachItem<EachFilter>
     each<T extends EachFilter>(
         options: EachOptions,
